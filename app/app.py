@@ -1,5 +1,6 @@
 import streamlit as st
 import torch
+import os
 import numpy as np
 import cv2
 from PIL import Image
@@ -7,7 +8,8 @@ from torchvision import transforms
 import timm
 import sys
 
-sys.path.append("../src")
+sys.path.append(os.path.join(os.path.dirname(__file__), "..", "src"))
+
 from gradcam import GradCAM
 
 # ─── Page setup ───
