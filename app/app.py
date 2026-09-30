@@ -97,7 +97,7 @@ def create_sample_zip():
     zip_buffer.seek(0)
     return zip_buffer.getvalue()
 
-photo_path = os.path.join(APP_DIR, "photo.jpg")
+photo_path = os.path.join(APP_DIR, "../app/professional_cv_headshot.png")
 with st.sidebar:
     st.markdown("## 👤 Developer")
     if os.path.exists(photo_path):
