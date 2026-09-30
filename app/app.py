@@ -227,6 +227,23 @@ if uploaded_file is not None:
         <div class="bar-bg"><div class="bar-fill" style="width:{p}%; background:{CLASS_COLORS[name]};"></div></div>
         """, unsafe_allow_html=True)
 
+        # ─── Feedback / Correction ───
+    st.divider()
+    st.markdown('<div class="section-title">✏️ Is this prediction wrong?</div>', unsafe_allow_html=True)
+    
+    correct_label = st.selectbox(
+        "Select the correct label:",
+        CLASS_NAMES,
+        index=CLASS_NAMES.index(pred_name),
+    )
+    
+    if st.button("💾 Save Correction", use_container_width=True):
+        save_dir = os.path.join(ROOT_DIR, "corrections", correct_label.replace(" ", "_").lower())
+        os.makedirs(save_dir, exist_ok=True)
+        save_path = os.path.join(save_dir, uploaded_file.name)
+        image.save(save_path)
+        st.success(f"✅ Saved to corrections/{correct_label.replace(' ', '_').lower()}/ — will be used for retraining!")
+
     with st.expander("ℹ️ How to read the attention map"):
         st.write("The heatmap (Grad-CAM) highlights the image regions that influenced the AI's "
                  "decision most. Red and yellow areas mattered most; blue areas mattered least.")
