@@ -5,4 +5,5 @@ __pycache__/
 data/
 #results/*.pth
 .ipynb_checkpoints/
-corrections/test_setup.py
+corrections/
+test_setup.py
