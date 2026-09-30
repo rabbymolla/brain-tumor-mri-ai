@@ -169,7 +169,22 @@ with st.expander("📥 No MRI scan? Download sample Data images for testing"):
 # ─── Results ───
 if uploaded_file is not None:
     image = Image.open(uploaded_file).convert("RGB")
-
+    
+    # BLOCK non-grayscale images (screenshots, photos, diagrams)
+    img_array = np.array(image)
+    r, g, b = img_array[:,:,0], img_array[:,:,1], img_array[:,:,2]
+    color_diff = np.mean(np.abs(r.astype(float) - g.astype(float))) + np.mean(np.abs(g.astype(float) - b.astype(float)))
+    
+    if color_diff > 5:
+        st.error("❌ This does not appear to be a brain MRI scan. MRI images are grayscale.")
+        st.info("💡 Please upload a real brain MRI image, or download samples above.")
+        st.stop()  # STOP - no prediction, no heatmap
+    
+    if color_diff > 25:
+        st.error("❌ This does not appear to be a brain MRI scan. MRI images are grayscale.")
+        st.info("💡 Please upload a real brain MRI image, or download samples above.")
+        st.stop()  # STOP - no prediction, no heatmap
+    
     with st.spinner("Analyzing scan..."):
         input_tensor = transform(image).unsqueeze(0).to(device)
         with torch.no_grad():
@@ -181,9 +196,15 @@ if uploaded_file is not None:
         heatmap = cv2.cvtColor(heatmap, cv2.COLOR_BGR2RGB)
         img_array = np.array(image.resize((224, 224)))
         overlay = cv2.addWeighted(img_array, 0.6, heatmap, 0.4, 0)
-
+    
     pred_name = CLASS_NAMES[predicted]
     confidence = float(probabilities[predicted]) * 100
+
+    # Confidence warning
+    if confidence < 75:
+        st.warning(f"⚠️ Low confidence ({confidence:.1f}%). This scan may need review by a radiologist.")
+    elif confidence < 85:
+        st.info(f"ℹ️ Moderate confidence ({confidence:.1f}%). Consider confirmation.")
 
     st.markdown(f"""
     <div class="result" style="background:{CLASS_COLORS[pred_name]};">
